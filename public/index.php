@@ -40,30 +40,37 @@ include_once __DIR__ . '/../src/partials/header.php';
         </a>
 
         <!-- Table Starts Here -->
-        <table id="contacts" class="table table-striped table-bordered">
+        <table id="contacts" class="table table-striped table-bordered align-middle">
           <thead>
             <tr>
+              <th scope="col" style="width: 80px;" class="text-center">Avatar</th>
               <th scope="col">Name</th>
               <th scope="col">Phone</th>
               <th scope="col">Date Created</th>
               <th scope="col">Notes</th>
-              <th scope="col">Actions</th>
+              <th scope="col" class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             <?php foreach ($contacts as $contact): ?>
               <tr>
+                <!-- Cột Avatar -->
+                <td class="text-center">
+                  <?php if (!empty($contact->avatar)) : ?>
+                    <img src="/<?= html_escape($contact->avatar) ?>" alt="Avatar" style="width: 45px; height: 45px; object-fit: cover;" class="rounded-circle" />
+                  <?php else : ?>
+                    <span class="badge bg-secondary">No img</span>
+                  <?php endif ?>
+                </td>
                 <td><?= html_escape($contact->name) ?></td>
                 <td><?= html_escape($contact->phone) ?></td>
                 <td><?= html_escape(date("d-m-Y", strtotime($contact->created_at))) ?></td>
                 <td><?= html_escape($contact->notes) ?></td>
                 <td class="d-flex justify-content-center">
-                  <!-- Nút Chỉnh Sửa -->
                   <a href="<?= '/edit.php?id=' . $contact->id ?>" class="btn btn-xs btn-warning">
                     <i alt="Edit" class="fa fa-pencil"></i> Edit
                   </a>
 
-                  <!-- Form Xóa -->
                   <form class="ms-1" action="/delete.php" method="POST">
                     <input type="hidden" name="id" value="<?= $contact->id ?>">
                     <button type="submit" class="btn btn-xs btn-danger" name="delete-contact">
@@ -80,21 +87,18 @@ include_once __DIR__ . '/../src/partials/header.php';
         <!-- Pagination -->
         <nav class="d-flex justify-content-center">
           <ul class="pagination">
-            <!-- Nút Previous -->
             <li class="page-item <?= $paginator->getPrevPage() ? '' : 'disabled' ?>">
               <a role="button" href="/?page=<?= $paginator->getPrevPage() ?>&limit=5" class="page-link">
                 <span>&laquo;</span>
               </a>
             </li>
 
-            <!-- Danh sách trang -->
             <?php foreach ($pages as $page): ?>
               <li class="page-item <?= $paginator->currentPage === $page ? 'active' : '' ?>">
                 <a role="button" href="/?page=<?= $page ?>&limit=5" class="page-link"><?= $page ?></a>
               </li>
             <?php endforeach ?>
 
-            <!-- Nút Next -->
             <li class="page-item <?= $paginator->getNextPage() ? '' : 'disabled' ?>">
               <a role="button" href="/?page=<?= $paginator->getNextPage() ?>&limit=5" class="page-link">
                 <span>&raquo;</span>
@@ -126,7 +130,7 @@ include_once __DIR__ . '/../src/partials/header.php';
 
   <?php include_once __DIR__ . '/../src/partials/footer.php' ?>
 
-  <!-- Modal Event Handler Script -->
+  <!-- JS Delete Modal Handler -->
   <script>
     const deleteButtons = document.querySelectorAll('button[name="delete-contact"]');
     deleteButtons.forEach(button => {
@@ -134,10 +138,11 @@ include_once __DIR__ . '/../src/partials/header.php';
         e.preventDefault();
 
         const form = button.closest('form');
-        const nameTd = button.closest('tr').querySelector('td:first-child');
+        // Vì cột 1 là Avatar nên tên nằm ở cột thứ 2 (td:nth-child(2))
+        const nameTd = button.closest('tr').querySelector('td:nth-child(2)');
         if (nameTd) {
           document.querySelector('.modal-body').textContent =
-            `Do you want to delete "${nameTd.textContent}"?`;
+            `Do you want to delete "${nameTd.textContent.trim()}"?`;
         }
 
         const submitForm = function() {

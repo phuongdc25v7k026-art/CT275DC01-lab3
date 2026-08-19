@@ -20,9 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     'notes' => $_POST['notes'] ?? '',
   ];
 
-  $errors = $contact->validate($contactData);
+  $errors = $contact->validate($contactData, $_FILES);
   if (empty($errors)) {
     $contact->fill($contactData);
+    $contact->handleUpload($_FILES);
     $contact->save() && redirect('/');
   }
 }
@@ -44,9 +45,27 @@ include_once __DIR__ . '/../src/partials/header.php';
     <div class="row">
       <div class="col-12">
 
-        <form method="post" class="col-md-6 offset-md-3">
+        <form method="post" enctype="multipart/form-data" class="col-md-6 offset-md-3">
 
           <input type="hidden" name="id" value="<?= $contact->id ?>">
+
+          <!-- Avatar Field -->
+          <div class="mb-3">
+            <label for="avatar" class="form-label">Avatar</label>
+            <input type="file" name="avatar" id="avatar" class="form-control<?= isset($errors['avatar']) ? ' is-invalid' : '' ?>" accept="image/*" />
+            <div class="mt-2">
+              <?php if (!empty($contact->avatar)) : ?>
+                <img id="avatar-preview" src="/<?= html_escape($contact->avatar) ?>" alt="Avatar Preview" style="max-width: 120px;" class="img-thumbnail" />
+              <?php else : ?>
+                <img id="avatar-preview" src="#" alt="Avatar Preview" style="max-width: 120px; display: none;" class="img-thumbnail" />
+              <?php endif ?>
+            </div>
+            <?php if (isset($errors['avatar'])) : ?>
+              <span class="invalid-feedback">
+                <strong><?= $errors['avatar'] ?></strong>
+              </span>
+            <?php endif ?>
+          </div>
 
           <!-- Name -->
           <div class="mb-3">
@@ -94,6 +113,18 @@ include_once __DIR__ . '/../src/partials/header.php';
   </div>
 
   <?php include_once __DIR__ . '/../src/partials/footer.php' ?>
+
+  <!-- JS Preview Avatar -->
+  <script>
+    document.getElementById('avatar').addEventListener('change', function(e) {
+      const preview = document.getElementById('avatar-preview');
+      const file = e.target.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 
 </html>
