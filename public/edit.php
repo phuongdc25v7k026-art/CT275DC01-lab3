@@ -1,10 +1,31 @@
 <?php
 require_once __DIR__ . '/../src/bootstrap.php';
-require_once __DIR__ . '/../src/classes/Contact.php';
 
 use CT275\Labs\Contact;
 
-$contact = new Contact(null);
+$contact = new Contact($PDO);
+
+$id = isset($_REQUEST['id']) ?
+  filter_var($_REQUEST['id'], FILTER_VALIDATE_INT) : false;
+
+if (!$id || !($contact->find($id))) {
+  redirect('/');
+}
+
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $contactData = [
+    'name' => $_POST['name'] ?? '',
+    'phone' => $_POST['phone'] ?? '',
+    'notes' => $_POST['notes'] ?? '',
+  ];
+
+  $errors = $contact->validate($contactData);
+  if (empty($errors)) {
+    $contact->fill($contactData);
+    $contact->save() && redirect('/');
+  }
+}
 
 include_once __DIR__ . '/../src/partials/header.php';
 ?>
