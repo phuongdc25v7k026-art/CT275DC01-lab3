@@ -2,11 +2,11 @@
 
 Học kỳ 3, Năm học: 2025-2026
 
-**Họ tên**: ...
+**Họ tên**: Huỳnh Hoàng Phương
 
-**MSSV**: ...
+**MSSV**: DC25V7K026
 
-**Lớp HP**: ...
+**Lớp HP**: CT275
 
 
 
