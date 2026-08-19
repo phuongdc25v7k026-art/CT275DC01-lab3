@@ -105,7 +105,11 @@ class Contact
 
     return $result;
   }
-
+  public function delete(): bool
+  {
+    $statement = $this->db->prepare('delete from contacts where id = :id');
+    return $statement->execute(['id' => $this->id]);
+  }
   public function count(): int
   {
     $statement = $this->db->prepare('select count(*) from contacts');
