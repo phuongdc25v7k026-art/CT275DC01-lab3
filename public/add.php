@@ -1,6 +1,26 @@
 <?php
 require_once __DIR__ . '/../src/bootstrap.php';
 
+use CT275\Labs\Contact;
+
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $contactData = [
+    'name' => $_POST['name'] ?? '',
+    'phone' => $_POST['phone'] ?? '',
+    'notes' => $_POST['notes'] ?? '',
+  ];
+
+  $contact = new Contact($PDO);
+  $errors = $contact->validate($contactData);
+
+  if (empty($errors)) {
+    $contact->fill($contactData);
+    $contact->save() && redirect('/');
+  }
+}
+
 include_once __DIR__ . '/../src/partials/header.php';
 ?>
 
